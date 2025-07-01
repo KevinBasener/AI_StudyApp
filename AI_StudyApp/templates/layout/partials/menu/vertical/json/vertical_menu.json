@@ -1,0 +1,28 @@
+{
+  "menu": [
+    {
+      "url": "index",
+      "icon": "menu-icon tf-icons mdi mdi-home-outline",
+      "name": "Klausur erstellen",
+      "slug": "index"
+    },
+    {
+      "url": "summaryCreator",
+      "icon": "menu-icon tf-icons mdi mdi-file-outline",
+      "name": "Zusammenfassung",
+      "slug": "summaryCreator"
+    },
+    {
+      "url": "learnCards",
+      "icon": "menu-icon tf-icons mdi mdi-cards-variant",
+      "name": "Lernkarten erstellen",
+      "slug": "learnCards"
+    },
+    {
+      "url": "slides",
+      "icon": "menu-icon tf-icons mdi mdi-book-education-outline",
+      "name": "Vorlesungsfolien erstellen",
+      "slug": "slides"
+    }
+  ]
+}

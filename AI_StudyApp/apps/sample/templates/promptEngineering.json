@@ -1,0 +1,24 @@
+  {
+    "Slide": "Titelfolie\n- Willkommen zum Kurs: Einführung in das Prompt Engineering\n- Schlüsselkonzepte des Prompt Engineering verstehen\n- Anwendungen und Strategien entwickeln\n- Dozent: [Name des Dozenten]\n- Datum: [Datum einfügen]"
+  },
+  {
+    "Slide": "Agenda\n- Einführung in Prompt Engineering\n- Grundlagen des Prompt Engineering\n- Anwendungsbeispiele\n- Entwicklungsstrategien\n- Praktische Übungen\n- Abschlussdiskussion"
+  },
+  {
+    "Slide": "Einführung in Prompt Engineering\n- Definition: Gestaltung von Eingabeaufforderungen (Prompts), um spezifische und optimierte Antworten von KI-Modellen zu erhalten.\n- Wichtigkeit: Zentral für die Effizienz und Effektivität von KI-Systemen.\n- Anwendungsbereiche: Chatbots, Textgenerierung, KI-gestützte Suche.\n- Ziel: Maximierung der Antwortqualität von KI-Modellen."
+  },
+  {
+    "Slide": "Grundlagen des Prompt Engineering\n- Input-Output-Verhältnis: Verständnis des Zusammenhangs zwischen Prompt-Gestaltung und KI-Output.\n- Modellarchitekturen: Einfluss verschiedener KI-Modelltypen auf die Promptgestaltung.\n- Sprachverständnis: Bedeutung von Kontext und Klarheit in Prompts.\n- Iterative Verbesserung: Wiederholte Anpassung und Testung von Prompts zur Optimierung."
+  },
+  {
+    "Slide": "Anwendungsbeispiele\n- Chatbots: Gestaltung menschenähnlicher Konversationen.\n- Inhaltserstellung: Erzeugung von Texten, Bildern oder Musik durch präzise Prompts.\n- Datenauswertung: Gezielte Fragen, um tiefe Einblicke aus Datenmengen zu erhalten.\n- Automatisierung: Einsatz in Routinetasks zur Effizienzsteigerung."
+  },
+  {
+    "Slide": "Entwicklungsstrategien\n- Zielgruppenanalyse: Verständnis der Endnutzerbedürfnisse.\n- Kreativität: Entwickeln einzigartiger und spezifischer Prompts.\n- Experimentieren: Testen verschiedener Prompt-Stile und -Formate.\n- Feedbackschleifen: Einholen von Nutzerfeedback zur stetigen Verbesserung."
+  },
+  {
+    "Slide": "Praktische Übungen\n- Übung 1: Gestaltung eines Prompts für einen fiktiven Chatbot.\n- Übung 2: Erstellung eines Prompts zur Generierung eines Blogartikels über Künstliche Intelligenz.\n- Übung 3: Optimierung eines gegebenen Prompts für bessere Suchergebnisse in einer KI-gesteuerten Suche.\n- Lösungsvorschläge werden bereitgestellt."
+  },
+  {
+    "Slide": "Abschlussdiskussion\n- Austausch von Erfahrungen: Was haben wir gelernt?\n- Herausforderungen und Lösungsansätze.\n- Zukünftige Entwicklungen im Prompt Engineering.\n- Q&A: Raum für Fragen und Antworten."
+  }

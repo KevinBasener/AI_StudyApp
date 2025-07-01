@@ -1,0 +1,661 @@
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/min/dropzone.min.js"></script>
+    <scripttype="module" src="https://md-block.verou.me/md-block.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        Dropzone.autoDiscover = false;
+        console.log("Dropzone autoDiscover disabled");
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/umd/bootstrap.bundle.min.js"></script>
+</head>
+
+
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% comment %} TODO: Change {% endcomment %}
+{% block title %}Vorlesungsfolien erstellen{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/dropzone/dropzone.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/nouislider/nouislider.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/nouislider/nouislider.js' %}"></script>
+<script src="{% static 'vendor/libs/dropzone/dropzone.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/cards-actions.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+
+
+<div class="row">
+    <!-- Basic  -->
+    <div class="alert alert-danger align-items-center" id="errorTextPopup" role="alert" style="display: none;">
+        <i class="mdi mdi-alert-circle-check-outline me-2"></i>
+    </div>
+    <div class="col-12">
+        <div class="card mb-4" style="width: auto;">
+            <h5 class="card-header">Vorlesungsfolien erstellen</h5>
+            <div class="card-body">
+                <form action="/upload" class="dropzone" id="dropzone-multi">
+                    <div class="dz-message needsclick">
+                        Ziehe dein PDF Skript hierhin oder klicke um es hochzuladen.
+                        <span class="note needsclick">(Anki - Creator. Ausgewählte Dateien <span class="fw-medium">nicht</span> hochgeladen.)</span>
+                    </div>
+                    {% csrf_token %}
+                </form>
+                </button>
+                <textarea id="textInput" class="form-control" rows="10" placeholder="Beschreibe die zu erstellenden Folien..."></textarea>
+                {% csrf_token %}
+                <button id="uploadButton" class="btn btn-primary mt-3">Text absenden</button>
+                <a id="downloadButton" class="btn btn-primary mt-3 visually-hidden-focusable" href="{% url 'download_presentation' %}">Präsentation downloaden</a>
+                <div class="col-auto">
+                    <div class="learningSuggestionsButtonDiv my-2" id="learningSuggestionButton" style="display: none;">
+                        <button id="learningSuggestionButtonb" type="button" class="btn btn-outline-success me-2">
+                            <span class="tf-icons mdi mdi-lightbulb-outline me-1"></span> Lernvorschläge anfragen
+                        </button>
+                    </div>
+                </div>
+                <div class="retryUploadCard my-2" id="retryUploadCard" style="display: none;">
+                    <button id="retryUploadButton" type="button" class="btn btn-outline-primary me-2">
+                        <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Anfrage erneut stellen
+                    </button>
+                    <div class="form-floating form-floating-outline" style="width: 40%; margin-top:20px;">
+                        <input type="text" class="form-control" id="retryUploadtext" placeholder="Versuche es erneut mit mehr..." aria-describedby="retryUploadTextHelp" />
+                        {% comment %} TODO: Change {% endcomment %}
+                        <label for="retryUploadtext">Erneut Folien generieren</label>
+                        <div id="retryUploadTextHelp" class="form-text">Hier können Sie Verbesserungsvorschläge angeben.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-header" style="padding-bottom:0px;">
+                <div class="card-action-title">
+                    <h3>Anfrage anpassen
+                        <a href="javascript:void(0);" class="card-collapsible">
+                            <i class="tf-icons mdi mdi-chevron-up"></i>
+                        </a>
+                    </h3>
+                </div>
+                <div class="card-action-element">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item">
+                        </li>
+                    </ul>
+                </div>
+            </div>
+              <div class="collapse show">
+                <div class="card-body">
+                    {% comment %} TODO: Change {% endcomment %}
+                    <h4 class="card-title">Komplexität</h4>
+                    <div class="mb-5" id="complexitySlider" style="width: 40%;"></div>
+                    <h4 class="card-title mt-3">Anzahl der Folien</h4>
+                    <div class="mb-5" id="numSlides" style="width: 40%;"></div>
+                    <div class="form-floating form-floating-outline" style="width: 40%; margin-top:50px;">
+                        <input type="text" class="form-control" id="floatingInput" rows="4" placeholder="Netzwerktopologien" aria-describedby="floatingInputHelp" />
+                        <label for="floatingInput">Themenschwerpunkt</label>
+                        <div id="floatingInputHelp" class="form-text h-px-75 w-px-400">Hier können Sie einen Themenschwerpunkt angeben.</div>
+                    </div>
+                </div>
+              </div>
+        </div>
+            </div>
+        </div>
+
+<div class="card">
+    <div class="card-title">
+        <div id="paginationContainer" class="mb-3"></div>
+        <h5 class="card-header" id="uploadResponse"></h5>
+        {% comment %} TODO: Change (no answer button and no question text) {% endcomment %}
+        <div class="card-body" id="slide">
+            <div id="carouselExample" class="carousel slide col-md-8 offset-md-2" data-bs-interval="false">
+                <div class="carousel-indicators mt-1">
+                <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active" style="filter: invert(1);"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="card d-flex justify-content-center align-items-center text-center">
+                            <div class="card-body">
+                            <h3>Erste Folie</h3>
+                                <div id="uploadResponse" class="card-text"></div>
+                                <p>Hier werden deine Vorlesungsfolien erstellt.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselExample" role="button" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1);"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExample" role="button" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1);"></span>
+                            <span class="visually-hidden">Next</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    /**
+     * Diese Funktion zeigt eine Fehlermeldung im HTML-Element mit der ID 'errorTextPopup'.
+     * @param errorMessage {String} - Der Fehlermeldungstext, der angezeigt werden soll.
+     */
+     function showError(errorMessage) {
+        // Zugriff auf das Element, das die Fehlermeldung anzeigen soll.
+        var errorPopup = document.getElementById('errorTextPopup');
+
+        // Setze den Text des Elements auf die übergebene Fehlermeldung.
+        errorPopup.innerHTML = errorMessage;
+
+        // Stelle sicher, dass das Element sichtbar ist.
+        errorPopup.style.display = 'block';
+    }
+
+    /**
+     * Diese Funktion versteckt das HTML-Element mit der ID 'errorTextPopup'.
+     */
+     function hideErrorText() {
+        // Zugriff auf das Element, das die Fehlermeldung anzeigt.
+        var errorPopup = document.getElementById('errorTextPopup');
+
+        // Setze die Anzeige des Elements auf 'none', um es auszublenden.
+        errorPopup.style.display = 'none';
+    }
+
+        document.getElementById('retryUploadCard').style.display = "none";
+
+        // Definieren Sie csrfToken hier, um es im gesamten Skript zugänglich zu machen
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // on load
+        document.addEventListener('DOMContentLoaded', function() {
+            noUiSlider.create(document.getElementById("complexitySlider"), {
+                start: [5],
+                behaviour: "tap-drag",
+                step: 1,
+                range: {
+                min: 0,
+                max: 10
+                },
+                pips: {
+                mode: 'steps',
+                density: 10,
+                }
+            });
+            noUiSlider.create(document.getElementById("numSlides"), {
+                start: [5],
+                behaviour: "tap-drag",
+                step: 1,
+                range: {
+                min: 0,
+                max: 20
+                },
+                pips: {
+                mode: 'steps',
+                density: 20
+                }
+            });
+            document.getElementById("downloadButton").hidden = true;
+        });
+
+        'use strict';
+
+        // previewTemplate: Updated Dropzone default previewTemplate
+        // ! Don't change it unless you really know what you are doing
+        const previewTemplate = `<div class="dz-preview dz-file-preview">
+        <div class="dz-details">
+        <div class="dz-thumbnail">
+            <img data-dz-thumbnail>
+            <span class="dz-nopreview">No preview</span>
+            <div class="dz-success-mark"></div>
+            <div class="dz-error-mark"></div>
+            <div class="dz-error-message"><span data-dz-errormessage></span></div>
+            <div class="progress">
+            <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-dz-uploadprogress></div>
+            </div>
+        </div>
+        <div class="dz-filename" data-dz-name></div>
+        <div class="dz-size" data-dz-size></div>
+        </div>
+        </div>`;
+
+        // remember the current thread_id
+        let thread_id = "";
+
+        if (Dropzone.instances.length > 0) {
+            Dropzone.instances.forEach(dz => dz.destroy()); // Entfernen Sie alle Instanzen
+        }
+
+        const dropzoneMulti = document.querySelector('#dropzone-multi');
+        if (dropzoneMulti) {
+            console.log("Dropzone Multi: ");
+        const myDropzoneMulti = new Dropzone(dropzoneMulti, {
+            // Ihre Konfiguration
+            previewTemplate: previewTemplate,
+            parallelUploads: 10,
+            uploadMultiple: true,
+            maxFilesize: 25,
+            addRemoveLinks: true, // Möglicherweise möchten Sie das auf true setzen, um Links zum Entfernen hinzuzufügen
+            autoProcessQueue: false, // Verhindert automatischen Upload bei Dateiauswahl
+            init: function() {
+
+                this.on("addedfile", function(file) {
+                    console.log("Eine Datei wurde hinzugefügt.");
+                });
+
+                const myDropzone = this; // Referenz auf die aktuelle Dropzone-Instanz
+
+                // Button zum Starten des Uploads
+                document.getElementById("uploadButton").addEventListener("click", function(e) {
+                  const textInput = document.getElementById("textInput").value;
+                  if (myDropzone.files.length === 0 && textInput === "") {
+                    showError("Bitte laden Sie eine Datei hoch oder geben sie etwas ein.");
+                      return;
+                    }
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if(myDropzone.files.length === 0) {
+                        sendSlidesRequest();
+                    }else {
+                        myDropzone.processQueue(); // Beginnt mit dem Upload
+                        console.log("Upload Button clicked");
+                        // Bereich für uploadBuuton so aktualisieren:
+                    }
+
+                    this.innerHTML = `
+                        <span class="spinner-border spinner-border-sm m-1" role="status" aria-hidden="true"></span>
+                        Präsentation wird erstellt...
+                    `;
+                    this.disabled = true; // Deaktivieren Sie den Button während des Hochladens
+                });
+
+                this.on("sendingmultiple", function(file, xhr, formData) {
+                    console.log("Datiene: ", this.files, "Datei: ", this.file)
+                    // CSRF-Token hinzufügen, erforderlich von Django
+                    console.log("sendingmultiple", file);
+                    formData.append("csrfmiddlewaretoken", csrfToken);
+                });
+                this.on("sending", function(file, xhr, formData) {
+                    // CSRF-Token hinzufügen, erforderlich von Django
+                    formData.append("csrfmiddlewaretoken", csrfToken);
+                });
+                this.on("successmultiple", function(files, response) {
+                    console.log("successmultiple", response);
+                    var responseData = typeof response === "string" ? JSON.parse(response) : response;
+                    var filename = responseData.data; // Angenommen, der Dateiname kommt in der Antwort
+
+                    sendSlidesRequest(filename);
+                });
+                this.on("error", function(file, response) {
+                    console.log("error", response);
+                    // Fehlerbehandlung
+                    var message = typeof response === "string" ? response : (response.error || "Fehler beim Hochladen der Datei!");
+                    alert(message);
+                    showError("Fehler beim Hochladen der Datei: " + message);
+                    document.getElementById("uploadButton").innerHTML = `
+                        <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Fehler
+                    `;
+                    document.getElementById('retryUploadCard').style.display = "block";
+                    console.log(data.thread_id[0][1])
+                    thread_id = data.thread_id[0][1];
+                });
+            }
+        });
+    }
+
+function sendSlidesRequest(filename = null) {
+    const complexitySlider = document.getElementById("complexitySlider").noUiSlider.get();
+    const numSlidesSlider = document.getElementById("numSlides").noUiSlider.get();
+    const topicInput = document.getElementById("floatingInput").value;
+    const textInput = document.getElementById("textInput").value;
+
+    fetch('/slidesEndpoint', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({
+            text: textInput,
+            thread_id: thread_id,
+            filename: filename, // Kann null sein, wenn keine Datei hochgeladen wurde
+            complexity: complexitySlider,
+            numSlides: numSlidesSlider,
+            topic: topicInput
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            document.getElementById('retryUploadCard').style.display = "block";
+            throw new Error('Netzwerkantwort war nicht ok.');
+        }
+        document.getElementById('retryUploadCard').style.display = "block";
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("uploadButton").innerHTML = `
+            <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Folien erstellt
+        `;
+        document.getElementById("downloadButton").classList.remove("visually-hidden-focusable");
+        document.getElementById('retryUploadCard').style.display = "block";
+
+        if (data.errorMessage != null) {
+            showError(data.errorMessage);
+            document.getElementById("uploadButton").innerHTML = `
+                <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Fehler
+            `;
+        } else {
+            updateSlides(data);
+        }
+    })
+    .catch((error) => {
+        document.getElementById('retryUploadCard').style.display = "block";
+        console.error('Fehler bei der erneuten Anfrage:', error);
+    });
+}
+
+//---- retryUploadButton ----
+
+// Definieren Sie csrfToken hier, um es im gesamten Skript zugänglich zu machen
+var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+document.getElementById('retryUploadButton').addEventListener("click", function() {
+    var retryText = document.getElementById('retryUploadtext').value;
+    // TODO: Change (maybe andere IDs)
+    const complexitySlider = document.getElementById("complexitySlider").noUiSlider.get();
+    const numSlidesSlider = document.getElementById("numSlides").noUiSlider.get();
+    const topicInput = document.getElementById("floatingInput").value;
+    const textInput = document.getElementById("textInput").value;
+
+    this.innerHTML = `
+                    <span class="spinner-border spinner-border-sm m-1" role="status" aria-hidden="true"></span>
+                     Folien werden erstellt...
+                `;
+
+    // Zusammensetzen der Daten für die erneute Anfrage
+    // TODO: Change (anderer Endpoint)
+    fetch('/retrySlides', { // Update endpoint as needed
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({
+            retryText: retryText,
+            thread_id: thread_id,
+            textInput: textInput,
+            old_response: summarys[summarys.length - 1],
+            complexity: complexitySlider,
+            numSlides: numSlidesSlider,
+            topic: topicInput
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Netzwerkantwort war nicht ok.');
+        }
+        this.innerHTML = `
+                    <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Anfrage erneut stellen
+                `;
+        return response.json();
+    })
+    .then(data => {
+        console.log('Erneute Erstellung erfolgreich:', data);
+
+        console.log("ErrorMessage: ", data.errorMessage);
+        errormessage = data.errorMessage;
+        if (errormessage != null) {
+            showError(errormessage);
+            document.getElementById("uploadButton").innerHTML = `
+                        <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Fehler
+                    `;
+        }
+        else{
+            updateSlides(data);
+        }
+        this.innerHTML = `
+                    <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Anfrage erneut stellen
+                `;
+    })
+    .catch((error) => {
+        console.error('Fehler bei der erneuten Anfrage:', error);
+        this.innerHTML = `
+                    <span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Anfrage erneut stellen
+                `;
+    });
+});
+
+var summarys = []; // This will store arrays of slide data fetched from the server
+
+// TODO: Change (name and functionality)
+function updateSlides(data) {
+    console.log('Erfolg:', data);
+    var slide_data = data;
+    console.log("slidedata: ", data);
+
+    // Anzeige des Upload-Buttons aktualisieren
+    document.getElementById("uploadButton").innerHTML = `<span class="tf-icons mdi mdi-checkbox-marked-circle-outline me-1"></span> Zusammenfassung erstellt`;
+
+    // Prüfen, ob Übungen und Antworten vorhanden sind
+    // TODO: Change (nur eins teilweise)
+    if (data) {
+        summarys.push(data); // Assuming data contains all necessary slide info
+        createPagination();
+        console.log("Foliensätze: ", summarys.length);
+        changePage(summarys.length);
+        displayFlashcards(slide_data);
+        hideErrorText();
+    } else {
+        showError("Fehler beim Generieren der Zusammenfassung");
+    }
+    // Fordere MathJax auf, den neuen Inhalt zu durchsuchen und zu rendern
+    MathJax.typesetPromise().then(() => {
+        console.log('MathJax hat den neuen Inhalt verarbeitet.');
+    }).catch((err) => {
+        console.error('Es gab ein Problem bei der Verarbeitung des Inhalts durch MathJax: ', err);
+        showError("Es gab ein Problem bei der Verarbeitung des Inhalts durch MathJax: " + err);
+    });
+}
+
+function displayFlashcards(data) {
+    const carousel = document.querySelector('#carouselExample');
+    const carouselInner = document.querySelector('.carousel-inner');
+    const carouselIndicators = document.querySelector('.carousel-indicators');
+    carouselInner.innerHTML = ''; // Clear existing content
+    carouselIndicators.innerHTML = ''; // Clear existing indicators
+
+    console.log("data Dict: ", data);
+
+    flashcards = data.data.Presentation.Slides;
+
+    // Check if flashcards is indeed an array
+    if (Array.isArray(flashcards)) {
+        flashcards.forEach((flashcard, index) => {
+            const slideContent = flashcard.Content; // Assuming the property name is Slide
+
+            // Creating carousel items
+            const carouselItem = document.createElement('div');
+            carouselItem.className = 'carousel-item';
+            if (index === 0) carouselItem.classList.add('active'); // Mark first element as active
+
+            // Creating indicators
+            const indicator = document.createElement('button');
+            indicator.type = 'button';
+            indicator.dataset.bsTarget = '#carouselExample';
+            indicator.dataset.bsSlideTo = index;
+            indicator.className = index === 0 ? 'active' : ''; // Mark first indicator as active
+            indicator.setAttribute('aria-current', index === 0 ? 'true' : 'false');
+            indicator.setAttribute('aria-label', `Slide ${index + 1}`);
+            indicator.setAttribute('style', 'filter: invert(1);');
+            indicator.style.marginTop = '10px';
+            carouselIndicators.appendChild(indicator);
+
+            // Add question and answer to the card
+            const card = document.createElement('div');
+            card.className = 'card d-flex justify-content-center align-items-center text-center';
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            const questionTitle = document.createElement('h3');
+            questionTitle.innerHTML = `Folie ${index + 1}`;
+            questionTitle.style.color = 'black'; // oder eine andere kontrastreiche Farbe
+
+
+            const questionText = document.createElement('div');
+            questionText.innerHTML = marked.parse(slideContent);
+
+            cardBody.appendChild(questionTitle);
+            cardBody.appendChild(questionText);
+            card.appendChild(cardBody);
+            carouselItem.appendChild(card);
+            carouselInner.appendChild(carouselItem);
+        });
+        setColorForAllHeadings();
+    } else {
+        console.error('Flashcards data is not an array.');
+    }
+
+    // Request MathJax to search the new content and render it
+    MathJax.typesetPromise().then(() => {
+        console.log('MathJax has processed the new content.');
+    }).catch((err) => {
+        console.error('There was a problem processing the content by MathJax: ', err);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    var carouselElementList = [].slice.call(document.querySelectorAll('#carouselExample'));
+    var carouselList = carouselElementList.map(function (carouselEl) {
+        return new bootstrap.Carousel(carouselEl);
+    });
+});
+
+function setColorForAllHeadings() {
+    // Selektiere das carouselInner Element
+    const carouselInner = document.querySelector('.carousel-inner');
+
+    // Selektiere alle Überschriftenelemente innerhalb von carouselInner
+    const headings = carouselInner.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+    // Durchlaufe alle Überschriften und setze die Farbe auf Schwarz
+    headings.forEach(heading => {
+        heading.style.color = 'black';
+    });
+}
+
+
+
+
+function stringFormating(text) {
+    let newText = text;
+    newText = newText.replace(/\\\\/g, '\\');
+    newText = newText.replace(/\\u00e4/g, 'ä');
+    newText = newText.replace(/\\u00f6/g, 'ö');
+    newText = newText.replace(/\\u00fc/g, 'ü');
+    newText = newText.replace(/\\u00df/g, 'ß');
+    newText = newText.replace(/\\u00c4/g, 'Ä');
+    newText = newText.replace(/\\u00d6/g, 'Ö');
+    newText = newText.replace(/\\u00dc/g, 'Ü');
+    // (\ddot{o}) -> ö
+    newText = newText.replace(/\\ddot\{o\}/g, 'ö');
+    // (\ddot{u}) -> ü
+    newText = newText.replace(/\\ddot\{u\}/g, 'ü');
+    // (\ddot{a}) -> ä
+    newText = newText.replace(/\\ddot\{a\}/g, 'ä');
+
+    // //n -> /n
+    newText = newText.replace(/\\n/g, '\n');
+    newText = newText.replace(/\\n1/g, '\n1');
+    newText = newText.replace(/\\n2/g, '\n2');
+    newText = newText.replace(/\\n3/g, '\n3');
+    // \u201e
+    newText = newText.replace(/\\u201e/g, '„');
+    newText = newText.replace(/\\u201c/g, '“');
+    newText = newText.replace(/\\u201d/g, '”');
+    newText = newText.replace(/\\u2018/g, '‘');
+    newText = newText.replace(/\\u2019/g, '’');
+    newText = newText.replace(/\\u00b0/g, '°');
+    newText = newText.replace(/\\u00b5/g, 'µ');
+    newText = newText.replace(/\\u00b2/g, '²');
+    // \$ -> $$
+    newText = newText.replace(/\\\$/g, '$$');
+    return newText;
+}
+
+// TODO: Change (anderer Aufbau)
+function createPagination(currentPage, totalPages) {
+    // Überprüfen, ob die Pagination überhaupt notwendig ist
+    if (totalPages <= 1) {
+        return;
+    }
+
+    var paginationHtml = '<nav aria-label="Page navigation example" style="padding-top: 20px; padding-left: 20px;"><ul class="pagination">';
+
+    // Button für die erste Seite und vorherige Seite, nur wenn mehr als eine Seite vorhanden ist
+    paginationHtml += `<li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(0)"><i class="mdi mdi-chevron-double-left"></i></a></li>`;
+    paginationHtml += `<li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage - 1})"><i class="mdi mdi-chevron-left"></i></a></li>`;
+
+    // Dynamische Erstellung der Seitennummern
+    for (let i = 0; i < totalPages; i++) {
+        paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="changePage(${i})">${i + 1}</a></li>`;
+    }
+
+    // Button für die nächste Seite und letzte Seite
+    paginationHtml += `<li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage + 1})"><i class="mdi mdi-chevron-right"></i></a></li>`;
+    paginationHtml += `<li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${totalPages - 1})"><i class="mdi mdi-chevron-double-right"></i></a></li>`;
+
+    paginationHtml += '</ul></nav>';
+    document.getElementById('paginationContainer').innerHTML = paginationHtml;
+}
+
+// Function to handle page change when a pagination link is clicked
+// TODO: Change anderer Aufbau
+function changePage(pageIndex) {
+    const data = summarys[pageIndex];
+    if (data) {
+        console.log("Change to page: ", pageIndex);
+        displayFlashcards(data);
+    }
+    // Update active class on pagination
+    document.querySelectorAll('.pagination .page-item').forEach((item, index) => {
+        if (index === pageIndex) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+    totalPages = summarys.length;
+    createPagination(pageIndex, totalPages);
+    // Fordere MathJax auf, den neuen Inhalt zu durchsuchen und zu rendern
+    MathJax.typesetPromise().then(() => {
+        console.log('MathJax hat den neuen Inhalt verarbeitet.');
+    }).catch((err) => {
+        console.error('Es gab ein Problem bei der Verarbeitung des Inhalts durch MathJax: ', err);
+        showError("Es gab ein Problem bei der Verarbeitung des Inhalts durch MathJax: " + err);
+    });
+}
+
+</script>
+
+
+
+
+
+{% endblock %}
