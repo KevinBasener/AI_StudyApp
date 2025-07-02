@@ -1,0 +1,188 @@
+{% load static %}
+{% load i18n %}
+
+{% if navbar_detached  %}
+<nav class="layout-navbar {{container_class}} navbar navbar-expand-xl {{navbar_detached_class}} align-items-center bg-navbar-theme" id="layout-navbar">
+  {% endif %}
+
+  {# Horizontal layout (navbar not detached) #}
+
+  {% if not navbar_detached %}
+  <nav class="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme" id="layout-navbar">
+    <div class="{{container_class}}">
+      {% endif %}
+
+      <!--  Brand demo (display only for navbar-full and hide on below xl) -->
+      {% if navbar_full %}
+      <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-4">
+        <a href="{% url 'index' %}" class="app-brand-link gap-2">
+          <span class="app-brand-logo demo">
+            {% include 'partials/logo.html' with bgcolor="#666CFF" %}
+          </span>
+          <span class="app-brand-text demo menu-text fw-bold">{% get_theme_variables 'template_name' %}</span>
+        </a>
+
+        {% if menu_horizontal %}
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
+          <i class="mdi mdi-close align-middle"></i>
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- ! Not required for layout-without-menu -->
+      {% if not navbar_hide_toggle %}
+      <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 {{ menu_horizontal|yesno:'d-xl-none,' }} {{ content_navbar|yesno:'d-xl-none,' }}">
+        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+          <i class="mdi mdi-menu mdi-24px"></i>
+        </a>
+      </div>
+      {% endif %}
+
+      <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+
+        <!-- Style Switcher -->
+        <div class="navbar-nav align-items-center">
+          <li class="nav-item dropdown-style-switcher dropdown me-2 me-xl-0">
+            <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+              <i class='mdi mdi-24px'></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-start dropdown-styles">
+              <li>
+                <a class="dropdown-item" href="javascript:void(0);" data-theme="light">
+                  <span class="align-middle"><i class='mdi mdi-weather-sunny me-2'></i>Light</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="javascript:void(0);" data-theme="dark">
+                  <span class="align-middle"><i class="mdi mdi-weather-night me-2"></i>Dark</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="javascript:void(0);" data-theme="system">
+                  <span class="align-middle"><i class="mdi mdi-monitor me-2"></i>System</span>
+                </a>
+              </li>
+            </ul>
+        </div>
+        <!-- / Style Switcher-->
+
+        <ul class="navbar-nav flex-row align-items-center ms-auto">
+          <!-- User -->
+          {% comment %} <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+              <div class="avatar avatar-online">
+                <!-- Moke condition for displaying user avatar -->
+                {% if request.user|has_group:"admin" %}
+                <img src="{% static 'img/avatars/1.png' %}" alt class="w-px-40 h-auto rounded-circle">
+                {% else %}
+                <img src="{% static 'img/avatars/3.png' %}" alt class="w-px-40 h-auto rounded-circle">
+                {% endif %}
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="{% url 'pages-account-settings-account' %}">
+                  <div class="d-flex">
+                    <div class="flex-shrink-0 me-3">
+                      <div class="avatar avatar-online">
+                        <!-- Moke condition for displaying user avatar -->
+                        {% if request.user|has_group:"admin" %}
+                        <img src="{% static 'img/avatars/1.png' %}" alt class="w-px-40 h-auto rounded-circle">
+                        {% else %}
+                        <img src="{% static 'img/avatars/3.png' %}" alt class="w-px-40 h-auto rounded-circle">
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="flex-grow-1">
+                      <span class="fw-medium d-block">{{ request.user.username }}</span>
+                      {% for group in request.user.groups.all %}
+                      <small class="text-muted">{{ group.name }}</small>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </a>
+              </li>
+              <li>
+                <div class="dropdown-divider"></div>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'pages-profile-user' %}">
+                  <i class="mdi mdi-account-outline me-2"></i>
+                  <span class="align-middle">My Profile</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'pages-account-settings-account' %}">
+                  <i class="mdi mdi-cog-outline me-2"></i>
+                  <span class="align-middle">Settings</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'pages-account-settings-billing' %}">
+                  <span class="d-flex align-items-center align-middle">
+                    <i class="flex-shrink-0 mdi mdi-credit-card-outline me-2"></i>
+                    <span class="flex-grow-1 align-middle ms-1">Billing</span>
+                    <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <div class="dropdown-divider"></div>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'pages-faq' %}">
+                  <i class="mdi mdi-help-circle-outline me-2"></i>
+                  <span class="align-middle">FAQ</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'pages-pricing' %}">
+                  <i class="mdi mdi-currency-usd me-2"></i>
+                  <span class="align-middle">Pricing</span>
+                </a>
+              </li>
+              <li>
+                <div class="dropdown-divider my-1"></div>
+              </li>
+              <li>
+                {% if request.user.is_authenticated and request.user.profile.is_verified %}
+                <span class="dropdown-item d-flex justify-content-between align-content-center">
+                  <span>
+                    <i class='mdi mdi-account-circle me-2'></i>
+                    <span class="align-middle">Verified</span>
+                  </span>
+                  <span class="text-success"><i class='mdi mdi-circle'></i></span>
+                </span>
+                {% else %}
+                <a class="dropdown-item d-flex justify-content-between align-content-center" href="{% url 'verify-email-page' %}">
+                  <span>
+                    <i class='mdi mdi-account-circle me-2'></i>
+                    <span class="align-middle">Not Verified</span>
+                  </span>
+                  <span class="text-danger"><i class='mdi mdi-circle'></i></span>
+                </a>
+                {% endif %}
+              </li>
+              <li>
+                <form action="{% url 'logout' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item">
+                    <i class="mdi mdi-logout me-1 mdi-20px"></i>
+                    <span class="align-middle">Log Out</span>
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li> {% endcomment %}
+          <!--/ User -->
+        </ul>
+
+      </div>
+      {% if not navbar_detached %}
+    </div>
+  </nav>
+  {% endif %}
+  {% if navbar_detached %}
+</nav>
+{% endif %}
